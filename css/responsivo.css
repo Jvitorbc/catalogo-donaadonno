@@ -1,0 +1,116 @@
+/* ==========================================================================
+   responsivo.css — ajustes por breakpoint.
+   Base (style.css/componentes.css) já é mobile-first.
+   Breakpoints: 600px (tablet retrato), 900px (tablet paisagem / notebook),
+   1200px (desktop grande). O uso principal previsto é tablet na loja,
+   por isso os ajustes de 600–900px recebem atenção especial.
+   ========================================================================== */
+
+/* ---------- 600px: telas um pouco maiores / tablets pequenos em pé ---------- */
+@media (min-width: 600px) {
+  .grade-produtos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 18px;
+  }
+
+  .barra-filtros {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .campo-busca {
+    flex: 1 1 auto;
+  }
+
+  .item-lista {
+    grid-template-columns: 96px 1fr auto;
+  }
+
+  .produto__midia-principal:has(.midia-painel--video:not([hidden])) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- 900px: tablet paisagem — uso principal na loja ---------- */
+@media (min-width: 900px) {
+  /* menu principal deixa de ser overlay e passa a ficar na barra do header */
+  .menu-toggle {
+    display: none;
+  }
+
+  .menu-principal {
+    position: static;
+    transform: none;
+    padding: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .menu-principal__lista {
+    flex-direction: row;
+    gap: 28px;
+  }
+
+  .menu-principal__lista a {
+    padding: 6px 2px;
+    font-size: 0.95rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .menu-principal__lista a[aria-current="page"] {
+    border-bottom-color: var(--cor-acento);
+  }
+
+  .cabecalho__barra {
+    padding: 20px 0;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 48px;
+    padding: 72px 0;
+  }
+
+  .hero__imagem {
+    aspect-ratio: 4 / 5;
+    border-radius: var(--raio);
+    overflow: hidden;
+  }
+
+  .secao__titulo {
+    font-size: 2.1rem;
+  }
+
+  .produto-stage {
+    padding: 48px 0 72px;
+  }
+
+  .produto {
+    gap: 40px;
+  }
+
+  .produto__info {
+    max-width: 640px;
+  }
+
+  .rodape__conteudo {
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  .item-lista {
+    padding: 18px;
+  }
+}
+
+/* ---------- 1200px: desktop grande ---------- */
+@media (min-width: 1200px) {
+  .grade-produtos {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .hero__titulo {
+    font-size: 3.6rem;
+  }
+}
