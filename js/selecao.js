@@ -73,4 +73,12 @@ function renderizarSelecao() {
   };
 }
 
-document.addEventListener("DOMContentLoaded", renderizarSelecao);
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await carregarCatalogo();
+  } catch (erro) {
+    // Segue mesmo assim — obterItensDetalhados() não vai achar os produtos
+    // e a seleção aparece como vazia, em vez de travar a página.
+  }
+  renderizarSelecao();
+});

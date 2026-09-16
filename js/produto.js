@@ -39,19 +39,21 @@ function renderizarGaleria(produto) {
     painelFoto.innerHTML = `<img src="${origemFoto(indice, 700, 875)}" alt="${produto.nome} — ${rotulo}" width="700" height="875" />`;
   }
 
-  if (produto.video) {
-    painelVideo.hidden = false;
-    painelVideo.innerHTML = `
-      <div class="video-placeholder">
+  // O painel de vídeo aparece SEMPRE ao lado da foto, em toda peça. Quando
+  // já existe um vídeo real cadastrado pelo painel administrativo
+  // (produto.video, vindo de video_url no banco), ele toca de verdade,
+  // com os controles nativos do navegador; sem vídeo ainda, mostra um
+  // aviso discreto no lugar, sem quebrar o layout.
+  painelVideo.hidden = false;
+  painelVideo.innerHTML = produto.video
+    ? `<video src="${produto.video}" controls playsinline aria-label="Vídeo da modelo usando ${produto.nome}"></video>`
+    : `<div class="video-placeholder">
         <span class="video-placeholder__icone">
           <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5V7z"/></svg>
         </span>
         <strong>Vídeo da modelo</strong>
-        <small>O vídeo real desta peça entra aqui assim que a loja enviar o arquivo (ex: assets/videos/${produto.id}.mp4).</small>
+        <small>O vídeo real desta peça entra aqui assim que a loja enviar o arquivo pelo painel administrativo.</small>
       </div>`;
-  } else {
-    painelVideo.hidden = true;
-  }
 
   miniaturas.innerHTML = "";
   fotos.forEach((_, indice) => {
@@ -175,7 +177,14 @@ function renderizarProdutoNaoEncontrado() {
   document.getElementById("produto-nao-encontrado").hidden = false;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await carregarCatalogo();
+  } catch (erro) {
+    renderizarProdutoNaoEncontrado();
+    return;
+  }
+
   const id = obterParametroUrl("id");
   produtoAtual = buscarProdutoPorId(id);
   if (!produtoAtual) {

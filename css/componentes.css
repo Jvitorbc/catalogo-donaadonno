@@ -355,6 +355,19 @@
   gap: 8px;
 }
 
+/* Marca: uma opção por linha (em coluna), a pedido da loja — os nomes das
+   marcas são mais longos que cor/tamanho, então em coluna fica mais fácil
+   de ler do que pílulas lado a lado quebrando linha no meio do nome. */
+#filtro-marcas {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#filtro-marcas .filtro-opcao {
+  width: 100%;
+  justify-content: flex-start;
+}
+
 /* Bolinha de amostra da cor, ao lado do nome (ver CORES_HEX em app.js). */
 .filtro-opcao__swatch {
   width: 14px;
@@ -580,6 +593,50 @@
   margin-bottom: 16px;
 }
 
+/* ---------- paginação do catálogo ---------- */
+/* Aparece só quando há mais peças do que cabem numa página (ver
+   PRODUTOS_POR_PAGINA em catalogo.js) — com poucas peças, some sozinha. */
+.paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 36px 0 8px;
+}
+
+.paginacao__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: 50%;
+  border: 1px solid var(--cor-borda);
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  transition: background var(--duracao-transicao), border-color var(--duracao-transicao),
+    color var(--duracao-transicao);
+}
+
+.paginacao__botao:hover:not(:disabled),
+.paginacao__botao:focus-visible:not(:disabled) {
+  border-color: var(--cor-acento);
+  background: var(--cor-superficie);
+}
+
+.paginacao__botao--atual {
+  background: var(--cor-tinta);
+  border-color: var(--cor-tinta);
+  color: var(--cor-tinta-texto);
+}
+
+.paginacao__botao:disabled {
+  opacity: 0.35;
+}
+
 /* ---------- estado vazio ---------- */
 .estado-vazio {
   text-align: center;
@@ -590,6 +647,17 @@
 .estado-vazio h2 {
   color: var(--cor-texto);
   font-size: 1.3rem;
+}
+
+/* Mensagem de carregando/erro dentro da própria grade — some assim que
+   os produtos chegam do banco de dados (ver carregarCatalogo() em
+   supabase.js). grid-column: 1 / -1 faz ela ocupar a grade inteira, em
+   vez de virar "mais um cartão" de duas colunas. */
+.carregando-catalogo {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--cor-texto-suave);
 }
 
 /* ---------- página de produto ---------- */
@@ -629,6 +697,22 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+/* Sem isso, a foto crescia até preencher a largura toda do container
+   (até 1160px em telas grandes) — como ela tem proporção fixa (4:5), ficava
+   gigantesca e "estourava" a altura da tela. Um teto de largura + margem
+   automática centraliza a foto num tamanho equilibrado, em vez dela ocupar
+   a largura inteira da página. Quando existe vídeo (foto + vídeo lado a
+   lado, ver regra abaixo), o teto é maior para caberem os dois painéis. */
+.produto__midia {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.produto__midia:has(.midia-painel--video:not([hidden])) {
+  max-width: 880px;
 }
 
 .produto__midia-principal {
@@ -723,6 +807,14 @@
 .video-placeholder small {
   font-size: 0.78rem;
   max-width: 26ch;
+}
+
+.midia-painel--video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
 }
 
 .produto__marca-link {

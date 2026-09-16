@@ -235,7 +235,7 @@ p {
 }
 
 .logo img {
-  height: 30px;
+  height: 36px;
   width: auto;
   display: block;
 }
@@ -297,35 +297,12 @@ p {
   display: none;
 }
 
-.menu-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: none;
-  border: none;
-}
-
-.menu-toggle svg {
-  width: 24px;
-  height: 24px;
-}
-
+/* No celular, a navegação some (o logo já leva para o início e o ícone ao
+   lado leva para "Minha seleção" — não há mais um menu hambúrguer separado
+   escondendo esses mesmos dois links). A partir de 900px ela reaparece como
+   uma barra horizontal ao lado do logo (ver responsivo.css). */
 .menu-principal {
-  position: fixed;
-  inset: 0;
-  top: 73px;
-  z-index: 55;
-  background: var(--cor-fundo);
-  padding: 24px var(--espaco-lateral);
-  transform: translateX(100%);
-  transition: transform var(--duracao-transicao) ease;
-  overflow-y: auto;
-}
-
-.menu-principal--aberto {
-  transform: translateX(0);
+  display: none;
 }
 
 .menu-principal__lista {
@@ -354,19 +331,19 @@ p {
   background: var(--cor-superficie);
   color: var(--cor-texto-suave);
   border-top: 1px solid var(--cor-borda);
-  margin-top: 64px;
+  margin-top: 40px;
 }
 
 .rodape__marca img {
-  height: 26px;
+  height: 22px;
   width: auto;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .rodape__conteudo {
-  padding: 48px 0 28px;
+  padding: 28px 0 16px;
   display: grid;
-  gap: 32px;
+  gap: 20px;
 }
 
 .rodape__marca {
@@ -382,7 +359,7 @@ p {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--cor-acento-escuro);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .rodape__coluna a,
@@ -390,8 +367,11 @@ p {
   color: var(--cor-texto-suave);
 }
 
-.rodape__coluna a:hover,
-.rodape__coluna a:focus-visible {
+/* :not(.rodape__icone) evita que esta regra "vença" a cor branca definida
+   em .rodape__icone:hover — sem isso, o ícone ficava roxo sobre fundo
+   roxo no hover (por ter mais especificidade que a classe sozinha). */
+.rodape__coluna a:not(.rodape__icone):hover,
+.rodape__coluna a:not(.rodape__icone):focus-visible {
   color: var(--cor-tinta);
 }
 
@@ -405,16 +385,16 @@ p {
    o perfil real e o endereço completo. */
 .rodape__icones {
   display: flex;
-  gap: 10px;
-  margin: 6px 0 10px;
+  gap: 8px;
+  margin: 4px 0 8px;
 }
 
 .rodape__icone {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 1px solid var(--cor-borda);
   color: var(--cor-tinta);
@@ -442,7 +422,7 @@ p {
 
 .rodape__base {
   border-top: 1px solid var(--cor-borda);
-  padding: 18px 0;
+  padding: 12px 0;
   font-size: 0.8rem;
   color: var(--cor-texto-suave);
   opacity: 0.85;

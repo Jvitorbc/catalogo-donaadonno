@@ -12,6 +12,12 @@
 const estadoFiltro = criarEstadoFiltro();
 estadoFiltro.categoria = "";
 
+// Quantas peças aparecem por página — quando o catálogo tiver mais peças
+// que isso, a paginação aparece sozinha lá embaixo (com poucas peças, o
+// catálogo inteiro cabe numa página só e a paginação fica escondida).
+const PRODUTOS_POR_PAGINA = 12;
+let paginaAtual = 1;
+
 function renderizarAbasCategoria() {
   const nav = document.getElementById("abas-categoria");
   const categoriasExistentes = listarCategorias();
@@ -38,16 +44,21 @@ function renderizarAbasCategoria() {
       estadoFiltro.categoria = categoria;
       nav.querySelectorAll(".aba-categoria").forEach((b) => b.setAttribute("aria-current", "false"));
       botao.setAttribute("aria-current", "true");
-      renderizarCatalogo();
+      aplicarFiltroDoZero();
     });
     nav.appendChild(botao);
   });
 }
 
 function filtrarProdutosCatalogo() {
-  return filtrarProdutos(estadoFiltro).filter(
+  const resultados = filtrarProdutos(estadoFiltro).filter(
     (produto) => !estadoFiltro.categoria || produto.categoria === estadoFiltro.categoria
   );
+  // Peças marcadas como novidade (campo "novidade" em produtos.js) sempre
+  // aparecem primeiro, entre as primeiras da grade — sort() do JavaScript é
+  // estável, então dentro de cada grupo (novidade / não-novidade) a ordem
+  // original de produtos.js é mantida, só os dois grupos são reordenados.
+  return resultados.sort((a, b) => Number(!!b.novidade) - Number(!!a.novidade));
 }
 
 function atualizarCabecalho() {
@@ -70,8 +81,16 @@ function renderizarCatalogo() {
   const resultadoInfo = document.getElementById("resultado-info");
   const resultados = filtrarProdutosCatalogo();
 
+  // Só a página atual entra na grade — o resto das peças filtradas fica
+  // "guardado" nas próximas páginas (ver renderizarPaginacao() abaixo).
+  const totalPaginas = Math.max(1, Math.ceil(resultados.length / PRODUTOS_POR_PAGINA));
+  if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+  if (paginaAtual < 1) paginaAtual = 1;
+  const inicio = (paginaAtual - 1) * PRODUTOS_POR_PAGINA;
+  const resultadosDaPagina = resultados.slice(inicio, inicio + PRODUTOS_POR_PAGINA);
+
   lista.innerHTML = "";
-  resultados.forEach((produto) => lista.appendChild(criarCardProduto(produto)));
+  resultadosDaPagina.forEach((produto) => lista.appendChild(criarCardProduto(produto)));
 
   const semResultado = resultados.length === 0;
   estadoVazio.hidden = !semResultado;
@@ -81,12 +100,85 @@ function renderizarCatalogo() {
     resultados.length === 1 ? "1 peça encontrada" : `${resultados.length} peças encontradas`;
 
   atualizarCabecalho();
+  renderizarPaginacao(totalPaginas);
+}
+
+/**
+ * Monta os botões de página lá embaixo da grade (‹ 1 2 3 › ...). Só
+ * aparece quando há mais de uma página — com poucas peças, o catálogo
+ * inteiro cabe numa página só e a paginação fica escondida sozinha.
+ */
+function renderizarPaginacao(totalPaginas) {
+  const nav = document.getElementById("paginacao");
+  if (!nav) return;
+
+  if (totalPaginas <= 1) {
+    nav.hidden = true;
+    nav.innerHTML = "";
+    return;
+  }
+  nav.hidden = false;
+  nav.innerHTML = "";
+
+  function criarBotaoPagina(rotulo, pagina, opcoes = {}) {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "paginacao__botao";
+    botao.textContent = rotulo;
+    if (opcoes.atual) {
+      botao.classList.add("paginacao__botao--atual");
+      botao.setAttribute("aria-current", "page");
+    }
+    if (opcoes.desabilitado) botao.disabled = true;
+    if (opcoes.rotuloAcessivel) botao.setAttribute("aria-label", opcoes.rotuloAcessivel);
+    botao.addEventListener("click", () => irParaPagina(pagina));
+    return botao;
+  }
+
+  nav.appendChild(
+    criarBotaoPagina("‹", paginaAtual - 1, {
+      desabilitado: paginaAtual === 1,
+      rotuloAcessivel: "Página anterior"
+    })
+  );
+
+  for (let pagina = 1; pagina <= totalPaginas; pagina++) {
+    nav.appendChild(
+      criarBotaoPagina(String(pagina), pagina, {
+        atual: pagina === paginaAtual,
+        rotuloAcessivel: `Ir para a página ${pagina}`
+      })
+    );
+  }
+
+  nav.appendChild(
+    criarBotaoPagina("›", paginaAtual + 1, {
+      desabilitado: paginaAtual === totalPaginas,
+      rotuloAcessivel: "Próxima página"
+    })
+  );
+}
+
+/** Troca de página e sobe a tela até o topo da grade, sem recarregar nada. */
+function irParaPagina(pagina) {
+  paginaAtual = pagina;
+  renderizarCatalogo();
+  const grade = document.getElementById("grade-catalogo");
+  if (!grade) return;
+  const reduzMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  grade.scrollIntoView({ behavior: reduzMovimento ? "auto" : "smooth", block: "start" });
+}
+
+/** Toda vez que a busca, a categoria ou o filtro mudam, volta pra página 1. */
+function aplicarFiltroDoZero() {
+  paginaAtual = 1;
+  renderizarCatalogo();
 }
 
 function initFiltros(filtro) {
   document.getElementById("campo-busca").addEventListener("input", (evento) => {
     estadoFiltro.busca = evento.target.value;
-    renderizarCatalogo();
+    aplicarFiltroDoZero();
   });
 
   document.getElementById("botao-limpar-filtros").addEventListener("click", () => {
@@ -98,8 +190,19 @@ function initFiltros(filtro) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const filtro = initFiltro(estadoFiltro, renderizarCatalogo);
+document.addEventListener("DOMContentLoaded", async () => {
+  const grade = document.getElementById("grade-catalogo");
+  grade.innerHTML = '<li class="carregando-catalogo">Carregando peças…</li>';
+
+  try {
+    await carregarCatalogo();
+  } catch (erro) {
+    grade.innerHTML =
+      '<li class="carregando-catalogo">Não foi possível carregar o catálogo agora. Tente atualizar a página em instantes.</li>';
+    return;
+  }
+
+  const filtro = initFiltro(estadoFiltro, aplicarFiltroDoZero);
   renderizarAbasCategoria();
   initFiltros(filtro);
   renderizarCatalogo();

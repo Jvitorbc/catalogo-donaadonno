@@ -33,17 +33,9 @@
 
 /* ---------- 900px: tablet paisagem — uso principal na loja ---------- */
 @media (min-width: 900px) {
-  /* menu principal deixa de ser overlay e passa a ficar na barra do header */
-  .menu-toggle {
-    display: none;
-  }
-
+  /* a partir daqui a navegação reaparece, alinhada ao logo na barra do header */
   .menu-principal {
-    position: static;
-    transform: none;
-    padding: 0;
-    background: none;
-    overflow: visible;
+    display: block;
   }
 
   .menu-principal__lista {
