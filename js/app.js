@@ -134,11 +134,14 @@ function gerarLinkWhatsApp(mensagem) {
 }
 
 function montarMensagemProdutoUnico(produto, tamanho) {
+  // Mesmo formato organizado da consulta de várias peças (montarMensagemSelecao):
+  // uma linha de abertura, o nome da peça com a marca, e o tamanho embaixo.
   const marca = buscarMarcaPorId(produto.marca);
-  let msg = `Olá! Gostaria de consultar a disponibilidade da peça ${produto.nome}`;
-  msg += marca ? `, da marca ${marca.nome}` : "";
-  if (tamanho) msg += `, no tamanho ${tamanho}`;
-  msg += ". Poderiam me ajudar?";
+  const nomeComMarca = marca ? `${produto.nome} - ${marca.nome}` : produto.nome;
+  let msg = "Olá! Gostaria de consultar a disponibilidade desta peça:\n\n";
+  msg += `${nomeComMarca}\n`;
+  if (tamanho) msg += `Tamanho: ${tamanho}\n`;
+  msg += "\nPoderiam me ajudar?";
   return msg;
 }
 
