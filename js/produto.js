@@ -3,14 +3,13 @@
  * Galeria de fotos + vídeo, seleção de tamanho, adicionar à lista de
  * consulta e consulta individual pelo WhatsApp.
  *
- * Não tem seleção de cor aqui de propósito: a cor da peça já aparece na
- * própria foto, então pedir pra escolher de novo seria repetir informação.
- * Categoria, tecido e caimento também saíram da ficha — o catálogo é só de
- * vestidos (a categoria nunca muda) e detalhes de tecido/caimento ficam
- * pra conversa no WhatsApp, quando fizer sentido. Os campos continuam
- * existindo em produtos.js (não fazem mal ali) e a cor de cada peça segue
- * sendo usada pelo filtro por cor do catálogo (ver CORES_HEX em app.js) —
- * só não aparece mais nesta página.
+ * Não tem SELEÇÃO de cor aqui de propósito (a peça já vem numa cor só,
+ * escolhida na foto) — mas o nome da cor aparece como texto junto da
+ * descrição. Categoria, tecido e caimento também saíram da ficha — o
+ * catálogo é só de vestidos (a categoria nunca muda) e detalhes de
+ * tecido/caimento ficam pra conversa no WhatsApp, quando fizer sentido.
+ * Os campos continuam existindo em produtos.js (não fazem mal ali). A cor
+ * não é mais usada como filtro no catálogo — só como informação da peça.
  */
 
 let produtoAtual = null;
@@ -105,7 +104,10 @@ function renderizarProduto(produto) {
   document.getElementById("produto-marca").href = marca ? `index.html?marca=${marca.id}` : "index.html";
   document.getElementById("produto-nome").textContent = produto.nome;
   document.getElementById("produto-preco").textContent = formatarPreco(produto.preco);
-  document.getElementById("produto-descricao").textContent = produto.descricao;
+  const cor = produto.cores && produto.cores[0];
+  document.getElementById("produto-descricao").textContent = cor
+    ? `Cor: ${cor}. ${produto.descricao}`
+    : produto.descricao;
 
   const etiquetaNovidade = document.getElementById("produto-etiqueta-novidade");
   if (etiquetaNovidade) etiquetaNovidade.hidden = !produto.novidade;

@@ -13,7 +13,7 @@ const CONFIG = {
   slogan: "Curadoria de marcas autorais",
   // Número fictício, formato internacional sem símbolos (DDI+DDD+número).
   // Troque pelo número real da loja antes de publicar de verdade.
-  whatsapp: "5587999999999",
+  whatsapp: "558788170262",
   cidade: "Petrolina, PE"
 };
 
@@ -148,16 +148,17 @@ function montarMensagemGeral() {
 }
 
 function montarMensagemSelecao(itensDetalhados) {
+  // Uma peça por bloco: nome na primeira linha, tamanho (quando houver) logo
+  // abaixo — formato pedido pela loja pra chegar organizado no WhatsApp.
   let msg = "Olá! Gostaria de consultar algumas peças do catálogo:\n\n";
   itensDetalhados.forEach((item, indice) => {
     const marca = buscarMarcaPorId(item.produto.marca);
-    const partes = [item.produto.nome];
-    if (marca) partes.push(marca.nome);
-    if (item.tamanho) partes.push(`Tamanho ${item.tamanho}`);
-    msg += `${indice + 1}. ${partes.join(" — ")}.\n`;
+    const nomeComMarca = marca ? `${item.produto.nome} - ${marca.nome}` : item.produto.nome;
+    msg += `${indice + 1}. ${nomeComMarca}\n`;
+    if (item.tamanho) msg += `Tamanho: ${item.tamanho}\n`;
+    msg += "\n";
   });
-  msg += "\nPoderiam me informar a disponibilidade e como posso realizar a compra?";
-  return msg;
+  return msg.trim();
 }
 
 /* ------------------------------------------------------------------ */
@@ -272,38 +273,19 @@ function criarCardProduto(produto) {
 /* re-renderiza a sua própria grade de produtos).                       */
 /* ------------------------------------------------------------------ */
 
-/**
- * Cor aproximada de cada nome de cor usado em produtos.js — só para
- * desenhar a bolinha de amostra ao lado do nome no filtro. Puramente
- * visual; se a loja usar um nome de cor novo que não está aqui, o filtro
- * continua funcionando normalmente, só sem a bolinha colorida.
- */
-const CORES_HEX = {
-  Terracota: "#c1502e",
-  Preto: "#1a1a1a",
-  Branco: "#f5f2ee",
-  Vinho: "#5c1a2e",
-  Grafite: "#4a4a4a",
-  Areia: "#d8c7a1",
-  Dourado: "#cdb074",
-  Caramelo: "#b06a35",
-  "Azul claro": "#a9c6d8"
-};
-
 /** Estado inicial de filtro: nada selecionado, faixa de preço completa. */
 function criarEstadoFiltro() {
-  return { busca: "", marcas: [], cores: [], tamanhos: [], precoMin: PRECO_MIN, precoMax: PRECO_MAX };
+  return { busca: "", marcas: [], tamanhos: [], precoMin: PRECO_MIN, precoMax: PRECO_MAX };
 }
 
 function produtoPassaNoFiltro(produto, estado) {
   const buscaNormalizada = (estado.busca || "").trim().toLowerCase();
   const combinaBusca = !buscaNormalizada || produto.nome.toLowerCase().includes(buscaNormalizada);
   const combinaMarca = estado.marcas.length === 0 || estado.marcas.includes(produto.marca);
-  const combinaCor = estado.cores.length === 0 || (produto.cores || []).some((cor) => estado.cores.includes(cor));
   const combinaTamanho =
     estado.tamanhos.length === 0 || (produto.tamanhos || []).some((tam) => estado.tamanhos.includes(tam));
   const combinaPreco = produto.preco >= estado.precoMin && produto.preco <= estado.precoMax;
-  return combinaBusca && combinaMarca && combinaCor && combinaTamanho && combinaPreco;
+  return combinaBusca && combinaMarca && combinaTamanho && combinaPreco;
 }
 
 function filtrarProdutos(estado) {
@@ -311,19 +293,16 @@ function filtrarProdutos(estado) {
 }
 
 /** Monta uma pílula de checkbox dentro de um grupo do filtro (cor, marca ou tamanho). */
-function criarOpcaoFiltro(container, valor, rotulo, corHex) {
+function criarOpcaoFiltro(container, valor, rotulo) {
   const label = document.createElement("label");
   label.className = "filtro-opcao";
-  const bolinha = corHex
-    ? `<span class="filtro-opcao__swatch" style="background:${escaparHtml(corHex)}" aria-hidden="true"></span>`
-    : "";
-  label.innerHTML = `<input type="checkbox" value="${escaparHtml(valor)}" />${bolinha}<span>${escaparHtml(rotulo)}</span>`;
+  label.innerHTML = `<input type="checkbox" value="${escaparHtml(valor)}" /><span>${escaparHtml(rotulo)}</span>`;
   container.appendChild(label);
 }
 
 /**
  * Liga o painel de filtro (cor, marca, tamanho e faixa de preço) de uma
- * página: monta as opções a partir de MARCAS/listarCores()/listarTamanhos(),
+ * página: monta as opções a partir de MARCAS/listarTamanhos(),
  * abre/fecha o painel (uma gaveta que desliza da direita, com cada grupo em
  * acordeão) e atualiza `estado` conforme o visitante interage. `aoAplicar`
  * é chamado sempre que o filtro muda (botão "Ver peças" ou "Limpar
@@ -337,7 +316,6 @@ function initFiltro(estado, aoAplicar) {
   if (!camada || !botaoAbrir) return { limpar: () => {} };
 
   const painel = document.getElementById("filtro-painel");
-  const listaCores = document.getElementById("filtro-cores");
   const listaMarcas = document.getElementById("filtro-marcas");
   const listaTamanhos = document.getElementById("filtro-tamanhos");
   const contagem = document.getElementById("filtro-contagem");
@@ -348,7 +326,6 @@ function initFiltro(estado, aoAplicar) {
   const rotuloPrecoMax = document.getElementById("filtro-preco-max-rotulo");
   const trilhoIntervalo = document.getElementById("filtro-slider-intervalo");
 
-  listarCores().forEach((cor) => criarOpcaoFiltro(listaCores, cor, cor, CORES_HEX[cor]));
   MARCAS.forEach((marca) => criarOpcaoFiltro(listaMarcas, marca.id, marca.nome));
   listarTamanhos().forEach((tamanho) => criarOpcaoFiltro(listaTamanhos, tamanho, tamanho));
 
@@ -376,7 +353,7 @@ function initFiltro(estado, aoAplicar) {
 
   function atualizarContagemBotao() {
     const precoAlterado = estado.precoMin > PRECO_MIN || estado.precoMax < PRECO_MAX;
-    const total = estado.marcas.length + estado.cores.length + estado.tamanhos.length + (precoAlterado ? 1 : 0);
+    const total = estado.marcas.length + estado.tamanhos.length + (precoAlterado ? 1 : 0);
     contagem.textContent = String(total);
     contagem.hidden = total === 0;
   }
@@ -395,7 +372,6 @@ function initFiltro(estado, aoAplicar) {
 
   function limpar() {
     estado.marcas = [];
-    estado.cores = [];
     estado.tamanhos = [];
     estado.precoMin = PRECO_MIN;
     estado.precoMax = PRECO_MAX;
@@ -413,12 +389,6 @@ function initFiltro(estado, aoAplicar) {
   camada.querySelectorAll("[data-filtro-fechar]").forEach((el) => el.addEventListener("click", fechar));
   document.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape" && camada.classList.contains("filtro-camada--aberta")) fechar();
-  });
-
-  listaCores.querySelectorAll('input[type="checkbox"]').forEach((input) => {
-    input.addEventListener("change", () => {
-      estado.cores = Array.from(listaCores.querySelectorAll('input[type="checkbox"]:checked')).map((i) => i.value);
-    });
   });
 
   listaMarcas.querySelectorAll('input[type="checkbox"]').forEach((input) => {

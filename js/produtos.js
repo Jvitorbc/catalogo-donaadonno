@@ -31,16 +31,12 @@ function listarCategorias() {
   return [...new Set(PRODUTOS.map((produto) => produto.categoria))];
 }
 
-/** Lista de cores únicas usadas no catálogo, na ordem em que aparecem. */
-function listarCores() {
-  return [...new Set(PRODUTOS.flatMap((produto) => produto.cores || []))];
-}
-
 /**
  * Lista de tamanhos únicos usados no catálogo, numa ordem lógica de
  * tamanho (não alfabética). Só entram tamanhos que alguma peça realmente usa.
  */
-const ORDEM_TAMANHOS = ["PP", "P", "M", "G", "GG"];
+// Numeração de vestido usada pela loja (não é P/M/G).
+const ORDEM_TAMANHOS = ["38", "40", "42", "44", "46", "48", "50", "52"];
 function listarTamanhos() {
   const usados = new Set(PRODUTOS.flatMap((produto) => produto.tamanhos || []));
   return ORDEM_TAMANHOS.filter((tamanho) => usados.has(tamanho));

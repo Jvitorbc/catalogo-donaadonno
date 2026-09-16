@@ -358,12 +358,14 @@
 /* Marca: uma opção por linha (em coluna), a pedido da loja — os nomes das
    marcas são mais longos que cor/tamanho, então em coluna fica mais fácil
    de ler do que pílulas lado a lado quebrando linha no meio do nome. */
-#filtro-marcas {
+#filtro-marcas,
+#filtro-cores {
   flex-direction: column;
   align-items: stretch;
 }
 
-#filtro-marcas .filtro-opcao {
+#filtro-marcas .filtro-opcao,
+#filtro-cores .filtro-opcao {
   width: 100%;
   justify-content: flex-start;
 }
