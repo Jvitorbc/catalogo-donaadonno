@@ -15,7 +15,7 @@ function obterItensDetalhados() {
 function criarItemSelecao(itemDetalhado) {
   const { produto, tamanho, indice } = itemDetalhado;
   const marca = buscarMarcaPorId(produto.marca);
-  const opcoes = tamanho ? `Tamanho ${tamanho}` : "";
+  const opcoes = tamanho ? `Tamanho ${escaparHtml(tamanho)}` : "";
   // Usa a foto real (fotos[0]) quando já existe, igual ao card do catálogo.
   const fotoCapa = (produto.fotos && produto.fotos[0]) || placeholderImg("Foto 1", produto.nome);
 
@@ -23,11 +23,11 @@ function criarItemSelecao(itemDetalhado) {
   li.className = "item-lista";
   li.innerHTML = `
     <a href="produto.html?id=${produto.id}" class="item-lista__imagem">
-      <img src="${fotoCapa}" alt="${produto.nome}" loading="lazy" />
+      <img src="${fotoCapa}" alt="${escaparHtml(produto.nome)}" loading="lazy" />
     </a>
     <a href="produto.html?id=${produto.id}">
-      <p class="item-lista__marca">${marca ? marca.nome : ""}</p>
-      <p class="item-lista__nome">${produto.nome}</p>
+      <p class="item-lista__marca">${escaparHtml(marca ? marca.nome : "")}</p>
+      <p class="item-lista__nome">${escaparHtml(produto.nome)}</p>
       ${opcoes ? `<p class="item-lista__opcoes">${opcoes}</p>` : ""}
       <p class="item-lista__preco">${formatarPreco(produto.preco)}</p>
     </a>
@@ -35,7 +35,7 @@ function criarItemSelecao(itemDetalhado) {
   const botaoRemover = document.createElement("button");
   botaoRemover.type = "button";
   botaoRemover.className = "item-lista__remover";
-  botaoRemover.setAttribute("aria-label", `Remover ${produto.nome} da seleção`);
+  botaoRemover.setAttribute("aria-label", `Remover ${escaparHtml(produto.nome)} da seleção`);
   botaoRemover.innerHTML =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
   botaoRemover.addEventListener("click", () => {

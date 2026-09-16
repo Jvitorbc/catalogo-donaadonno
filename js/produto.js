@@ -36,7 +36,7 @@ function renderizarGaleria(produto) {
 
   function mostrarFoto(indice) {
     const rotulo = `Foto ${indice + 1}`;
-    painelFoto.innerHTML = `<img src="${origemFoto(indice, 700, 875)}" alt="${produto.nome} — ${rotulo}" width="700" height="875" />`;
+    painelFoto.innerHTML = `<img src="${origemFoto(indice, 700, 875)}" alt="${escaparHtml(produto.nome)} — ${escaparHtml(rotulo)}" width="700" height="875" />`;
   }
 
   // O painel de vídeo aparece SEMPRE ao lado da foto, em toda peça. Quando
@@ -46,7 +46,7 @@ function renderizarGaleria(produto) {
   // aviso discreto no lugar, sem quebrar o layout.
   painelVideo.hidden = false;
   painelVideo.innerHTML = produto.video
-    ? `<video src="${produto.video}" controls playsinline aria-label="Vídeo da modelo usando ${produto.nome}"></video>`
+    ? `<video src="${produto.video}" controls playsinline aria-label="Vídeo da modelo usando ${escaparHtml(produto.nome)}"></video>`
     : `<div class="video-placeholder">
         <span class="video-placeholder__icone">
           <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5V7z"/></svg>

@@ -60,6 +60,24 @@ function escaparXml(texto) {
     .replace(/>/g, "&gt;");
 }
 
+/**
+ * Escapa texto antes de inserir com innerHTML (como texto OU dentro de um
+ * atributo). Usamos sempre que um valor vindo do banco (nome da peça, nome
+ * da marca, cor...) entra num template de HTML — sem isso, uma peça
+ * cadastrada com "&", "<" ou aspas no nome quebraria o layout, e em teoria
+ * alguém com acesso ao painel poderia inserir HTML/script no catálogo
+ * público. Os dados vêm só de quem tem login no painel (não do público),
+ * mas escapar é uma proteção simples e sem custo.
+ */
+function escaparHtml(texto) {
+  return String(texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /* ------------------------------------------------------------------ */
 /* FORMATAÇÃO                                                          */
 /* ------------------------------------------------------------------ */
@@ -234,13 +252,13 @@ function criarCardProduto(produto) {
   li.innerHTML = `
     <div class="cartao-produto__imagem-wrap">
       ${produto.novidade ? '<span class="etiqueta-novidade">Novidade</span>' : ""}
-      <a href="produto.html?id=${produto.id}" class="cartao-produto__link" aria-label="Ver detalhes de ${produto.nome}">
-        <img src="${fotoCapa}" alt="${produto.nome}, ${marca ? marca.nome : ""}" loading="lazy" width="600" height="800" />
+      <a href="produto.html?id=${produto.id}" class="cartao-produto__link" aria-label="Ver detalhes de ${escaparHtml(produto.nome)}">
+        <img src="${fotoCapa}" alt="${escaparHtml(produto.nome)}, ${escaparHtml(marca ? marca.nome : "")}" loading="lazy" width="600" height="800" />
       </a>
     </div>
     <a href="produto.html?id=${produto.id}" class="cartao-produto__link">
-      <p class="cartao-produto__marca">${marca ? marca.nome : ""}</p>
-      <p class="cartao-produto__nome">${produto.nome}</p>
+      <p class="cartao-produto__marca">${escaparHtml(marca ? marca.nome : "")}</p>
+      <p class="cartao-produto__nome">${escaparHtml(produto.nome)}</p>
       <p class="cartao-produto__preco">${formatarPreco(produto.preco)}</p>
     </a>
   `;
@@ -297,9 +315,9 @@ function criarOpcaoFiltro(container, valor, rotulo, corHex) {
   const label = document.createElement("label");
   label.className = "filtro-opcao";
   const bolinha = corHex
-    ? `<span class="filtro-opcao__swatch" style="background:${corHex}" aria-hidden="true"></span>`
+    ? `<span class="filtro-opcao__swatch" style="background:${escaparHtml(corHex)}" aria-hidden="true"></span>`
     : "";
-  label.innerHTML = `<input type="checkbox" value="${valor}" />${bolinha}<span>${rotulo}</span>`;
+  label.innerHTML = `<input type="checkbox" value="${escaparHtml(valor)}" />${bolinha}<span>${escaparHtml(rotulo)}</span>`;
   container.appendChild(label);
 }
 
